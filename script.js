@@ -14,12 +14,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+// After Firebase initialization, add handleVisitorEntry call
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+handleVisitorEntry();
 
-let images = [];
-let currentIndex = 0;
-
+// Update the fetchImages function
 async function fetchImages() {
     try {
         const response = await fetch(
@@ -31,11 +31,38 @@ async function fetchImages() {
             location: image.location.name || 'Scenic Location',
             description: getDetailedDescription(image.location.name || image.description || image.alt_description)
         }));
-        showImage(currentIndex);
-        startSlideshow();
+        
+        // Create nav zones first
+        createNavZones();
+        
+        // Then show first image and start slideshow
+        if (images.length > 0) {
+            showImage(currentIndex);
+            startSlideshow();
+        }
     } catch (error) {
         console.error('Error fetching images:', error);
+        // Add error handling for users
+        imageWrapper.innerHTML = `
+            <div style="color: white; text-align: center; padding: 20px;">
+                <h2>Unable to load images</h2>
+                <p>Please refresh the page to try again</p>
+            </div>
+        `;
     }
+}
+
+// Update showImage function to handle empty states
+function showImage(index) {
+    if (!images[index]) return;
+    
+    imageWrapper.classList.add('fade');
+    setTimeout(() => {
+        imageWrapper.style.backgroundImage = `url(${images[index].url})`;
+        updateImageInfo(index);
+        imageWrapper.classList.remove('fade');
+        updateProgress(); // Add progress bar update
+    }, 3000);
 }
 
 function getDetailedDescription(locationInfo) {
@@ -98,15 +125,6 @@ function updateImageInfo(index) {
     `;
     imageWrapper.innerHTML = '';
     imageWrapper.appendChild(imageInfo);
-}
-
-function showImage(index) {
-    imageWrapper.classList.add('fade');
-    setTimeout(() => {
-        imageWrapper.style.backgroundImage = `url(${images[index].url})`;
-        updateImageInfo(index);
-        imageWrapper.classList.remove('fade');
-    }, 3000); // Increased to 3000ms to match CSS transition
 }
 
 function startSlideshow() {
