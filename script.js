@@ -1,12 +1,15 @@
 const accessKey = 'nnzYM_D-RwaiEJnWZlBQHhjX2qptAEZTl4u01DyosgI';
 const imageWrapper = document.querySelector('.image-wrapper');
 
-// Initialize variables at the top
+// Initialize variables
 let images = [];
 let currentIndex = 0;
 let visitors = [];
+let slideshowInterval;
+let isPlaying = true;
+let db;
 
-// Firebase configuration and initialization
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAYyhwvbR0j05AzO5CKq_YvQ6Sa_2ZqPF0",
     authDomain: "scenery-burst.firebaseapp.com",
@@ -18,14 +21,17 @@ const firebaseConfig = {
     measurementId: "G-B9F9KQCRL8"
 };
 
-// Replace the Firebase initialization
+// Initialize Firebase
 try {
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    db = firebase.database();
 } catch (error) {
     console.error('Firebase initialization error:', error);
     alert('Error connecting to visitor system. Gallery will still work.');
 }
+
+// Remove the duplicate db initialization
+// const db = firebase.database();
 
 // Update showVisitors function to handle empty data
 function showVisitors() {
