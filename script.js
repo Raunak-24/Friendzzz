@@ -1,12 +1,15 @@
+// At the top of your file
 const accessKey = 'nnzYM_D-RwaiEJnWZlBQHhjX2qptAEZTl4u01DyosgI';
 const imageWrapper = document.querySelector('.image-wrapper');
 
-// Initialize variables
+// Initialize all variables at the top
 let images = [];
 let currentIndex = 0;
 let visitors = [];
 let slideshowInterval;
 let isPlaying = true;
+let touchStartX = 0;
+let touchEndX = 0;
 let db;
 
 // Firebase configuration
@@ -21,17 +24,9 @@ const firebaseConfig = {
     measurementId: "G-B9F9KQCRL8"
 };
 
-// Initialize Firebase
-try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-} catch (error) {
-    console.error('Firebase initialization error:', error);
-    alert('Error connecting to visitor system. Gallery will still work.');
-}
-
-// Remove the duplicate db initialization
-// const db = firebase.database();
+// Initialize Firebase and assign to db
+firebase.initializeApp(firebaseConfig);
+db = firebase.database();
 
 // Update showVisitors function to handle empty data
 function showVisitors() {
@@ -55,7 +50,6 @@ function showVisitors() {
         document.body.appendChild(visitorList);
     });
 }
-const db = firebase.database();
 
 // Remove duplicate fetchImages function and keep only one version
 async function fetchImages() {
@@ -89,10 +83,37 @@ async function fetchImages() {
     }
 }
 
-// Remove duplicate startSlideshow function and keep only one version
 function startSlideshow() {
-    setInterval(nextImage, 12000);
+    if (slideshowInterval) clearInterval(slideshowInterval);
+    slideshowInterval = setInterval(nextImage, 12000);
 }
+
+function toggleSlideshow() {
+    if (isPlaying) {
+        clearInterval(slideshowInterval);
+    } else {
+        startSlideshow();
+    }
+    isPlaying = !isPlaying;
+}
+
+// Single event listener for keyboard controls
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Space') {
+        e.preventDefault();
+        toggleSlideshow();
+    }
+    if (e.key.toLowerCase() === 'v') {
+        const existingList = document.querySelector('.visitor-list');
+        if (existingList) {
+            existingList.remove();
+        } else {
+            showVisitors();
+        }
+    }
+});
 
 // Initialize everything after DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -262,123 +283,4 @@ function updateProgress() {
     progressBar.className = 'progress-bar';
     progressBar.style.width = `${(currentIndex + 1) / images.length * 100}%`;
     imageWrapper.appendChild(progressBar);
-}
-
-// At the top of the file, after initial variables
-let slideshowInterval;
-let isPlaying = true;
-
-// Remove duplicate fetchImages function, keep only the first one
-// Remove duplicate startSlideshow function, keep only this version
-function startSlideshow() {
-    slideshowInterval = setInterval(nextImage, 12000);
-}
-
-// Remove duplicate keyboard event listeners, keep only this consolidated version
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'Space') {
-        e.preventDefault(); // Prevent page scroll
-        toggleSlideshow();
-    }
-    if (e.key.toLowerCase() === 'v') {
-        const existingList = document.querySelector('.visitor-list');
-        if (existingList) {
-            existingList.remove();
-        } else {
-            showVisitors();
-        }
-    }
-});
-
-// Remove the standalone fetchImages() call since it's now in DOMContentLoaded
-
-// Add keyboard shortcut for visitor list
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'Space') toggleSlideshow();
-    if (e.key.toLowerCase() === 'v') {
-        const existingList = document.querySelector('.visitor-list');
-        if (existingList) {
-            existingList.remove();
-        } else {
-            showVisitors();
-        }
-    }
-});
-
-// Remove the duplicate initialization
-// fetchImages();
-
-// Modify the show visitors function
-function showVisitors() {
-    db.ref('visitors').on('value', (snapshot) => {
-        const visitors = snapshot.val();
-        const visitorList = document.createElement('div');
-        visitorList.className = 'visitor-list';
-        
-        visitorList.innerHTML = `
-            <h3>Recent Visitors</h3>
-            <ul>
-                ${Object.values(visitors).map(visitor => `
-                    <li>${visitor.name} - ${visitor.timestamp}</li>
-                `).join('')}
-            </ul>
-        `;
-        
-        document.body.appendChild(visitorList);
-    });
-}
-
-// Move handleVisitorEntry function before DOMContentLoaded
-function handleVisitorEntry() {
-    const welcomeOverlay = document.getElementById('welcomeOverlay');
-    const nameInput = document.getElementById('visitorName');
-
-    nameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const name = nameInput.value.trim();
-            if (name) {
-                db.ref('visitors').push({
-                    name: name,
-                    timestamp: new Date().toLocaleString()
-                });
-                welcomeOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    welcomeOverlay.style.display = 'none';
-                }, 1000);
-            }
-        }
-    });
-}
-
-// Remove duplicate functions
-// Remove second fetchImages function
-// Remove second startSlideshow function
-// Remove second initialization call
-
-// Update keyboard event listener to include both navigation and visitor list
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') nextImage();
-    if (e.key === 'ArrowLeft') prevImage();
-    if (e.key === 'Space') toggleSlideshow();
-    if (e.key.toLowerCase() === 'v') {
-        const existingList = document.querySelector('.visitor-list');
-        if (existingList) {
-            existingList.remove();
-        } else {
-            showVisitors();
-        }
-    }
-});
-
-function toggleSlideshow() {
-    if (isPlaying) {
-        clearInterval(slideshowInterval);
-    } else {
-        slideshowInterval = setInterval(nextImage, 12000);
-    }
-    isPlaying = !isPlaying;
 }
