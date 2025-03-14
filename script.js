@@ -205,14 +205,11 @@ let visitors = [];
 function handleVisitorEntry() {
     const welcomeOverlay = document.getElementById('welcomeOverlay');
     const nameInput = document.getElementById('visitorName');
-    let timer;
 
-    nameInput.addEventListener('input', () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
             const name = nameInput.value.trim();
             if (name) {
-                // Store in Firebase instead of localStorage
                 db.ref('visitors').push({
                     name: name,
                     timestamp: new Date().toLocaleString()
@@ -222,7 +219,7 @@ function handleVisitorEntry() {
                     welcomeOverlay.style.display = 'none';
                 }, 1000);
             }
-        }, 2000);
+        }
     });
 }
 
