@@ -1,7 +1,12 @@
 const accessKey = 'nnzYM_D-RwaiEJnWZlBQHhjX2qptAEZTl4u01DyosgI';
 const imageWrapper = document.querySelector('.image-wrapper');
 
-// Add Firebase configuration
+// Initialize variables at the top
+let images = [];
+let currentIndex = 0;
+let visitors = [];
+
+// Firebase configuration and initialization
 const firebaseConfig = {
     apiKey: "AIzaSyAYyhwvbR0j05AzO5CKq_YvQ6Sa_2ZqPF0",
     authDomain: "scenery-burst.firebaseapp.com",
@@ -13,18 +18,45 @@ const firebaseConfig = {
     measurementId: "G-B9F9KQCRL8"
 };
 
-// Initialize Firebase
-// After Firebase initialization, add handleVisitorEntry call
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-handleVisitorEntry();
+// Add this after Firebase initialization
+firebase.initializeApp(firebaseConfig).catch(error => {
+    console.error('Firebase initialization error:', error);
+    alert('Error connecting to visitor system. Gallery will still work.');
+});
 
-// Update the fetchImages function
+// Update showVisitors function to handle empty data
+function showVisitors() {
+    db.ref('visitors').on('value', (snapshot) => {
+        const visitors = snapshot.val() || {};
+        const visitorList = document.createElement('div');
+        visitorList.className = 'visitor-list';
+        
+        visitorList.innerHTML = `
+            <h3>Recent Visitors</h3>
+            <ul>
+                ${Object.values(visitors).length ? 
+                    Object.values(visitors).map(visitor => `
+                        <li>${visitor.name} - ${visitor.timestamp}</li>
+                    `).join('') :
+                    '<li>No visitors yet</li>'
+                }
+            </ul>
+        `;
+        
+        document.body.appendChild(visitorList);
+    });
+}
+const db = firebase.database();
+
+// Remove duplicate fetchImages function and keep only one version
 async function fetchImages() {
     try {
         const response = await fetch(
             `https://api.unsplash.com/photos/random?count=50&query=scenery&client_id=${accessKey}`
         );
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         images = data.map(image => ({
             url: image.urls.regular,
@@ -32,25 +64,32 @@ async function fetchImages() {
             description: getDetailedDescription(image.location.name || image.description || image.alt_description)
         }));
         
-        // Create nav zones first
-        createNavZones();
-        
-        // Then show first image and start slideshow
         if (images.length > 0) {
+            createNavZones();
             showImage(currentIndex);
             startSlideshow();
         }
     } catch (error) {
         console.error('Error fetching images:', error);
-        // Add error handling for users
         imageWrapper.innerHTML = `
             <div style="color: white; text-align: center; padding: 20px;">
                 <h2>Unable to load images</h2>
-                <p>Please refresh the page to try again</p>
+                <p>Error: ${error.message}</p>
             </div>
         `;
     }
 }
+
+// Remove duplicate startSlideshow function and keep only one version
+function startSlideshow() {
+    setInterval(nextImage, 12000);
+}
+
+// Initialize everything after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    handleVisitorEntry();
+    fetchImages();
+});
 
 // Update showImage function to handle empty states
 function showImage(index) {
@@ -216,10 +255,75 @@ function updateProgress() {
     imageWrapper.appendChild(progressBar);
 }
 
-// Add at the beginning of the file, after the constants
-let visitors = [];
+// At the top of the file, after initial variables
+let slideshowInterval;
+let isPlaying = true;
 
-// Add before fetchImages() call
+// Remove duplicate fetchImages function, keep only the first one
+// Remove duplicate startSlideshow function, keep only this version
+function startSlideshow() {
+    slideshowInterval = setInterval(nextImage, 12000);
+}
+
+// Remove duplicate keyboard event listeners, keep only this consolidated version
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Space') {
+        e.preventDefault(); // Prevent page scroll
+        toggleSlideshow();
+    }
+    if (e.key.toLowerCase() === 'v') {
+        const existingList = document.querySelector('.visitor-list');
+        if (existingList) {
+            existingList.remove();
+        } else {
+            showVisitors();
+        }
+    }
+});
+
+// Remove the standalone fetchImages() call since it's now in DOMContentLoaded
+
+// Add keyboard shortcut for visitor list
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Space') toggleSlideshow();
+    if (e.key.toLowerCase() === 'v') {
+        const existingList = document.querySelector('.visitor-list');
+        if (existingList) {
+            existingList.remove();
+        } else {
+            showVisitors();
+        }
+    }
+});
+
+// Remove the duplicate initialization
+// fetchImages();
+
+// Modify the show visitors function
+function showVisitors() {
+    db.ref('visitors').on('value', (snapshot) => {
+        const visitors = snapshot.val();
+        const visitorList = document.createElement('div');
+        visitorList.className = 'visitor-list';
+        
+        visitorList.innerHTML = `
+            <h3>Recent Visitors</h3>
+            <ul>
+                ${Object.values(visitors).map(visitor => `
+                    <li>${visitor.name} - ${visitor.timestamp}</li>
+                `).join('')}
+            </ul>
+        `;
+        
+        document.body.appendChild(visitorList);
+    });
+}
+
+// Move handleVisitorEntry function before DOMContentLoaded
 function handleVisitorEntry() {
     const welcomeOverlay = document.getElementById('welcomeOverlay');
     const nameInput = document.getElementById('visitorName');
@@ -241,22 +345,31 @@ function handleVisitorEntry() {
     });
 }
 
-// Modify the show visitors function
-function showVisitors() {
-    db.ref('visitors').on('value', (snapshot) => {
-        const visitors = snapshot.val();
-        const visitorList = document.createElement('div');
-        visitorList.className = 'visitor-list';
-        
-        visitorList.innerHTML = `
-            <h3>Recent Visitors</h3>
-            <ul>
-                ${Object.values(visitors).map(visitor => `
-                    <li>${visitor.name} - ${visitor.timestamp}</li>
-                `).join('')}
-            </ul>
-        `;
-        
-        document.body.appendChild(visitorList);
-    });
+// Remove duplicate functions
+// Remove second fetchImages function
+// Remove second startSlideshow function
+// Remove second initialization call
+
+// Update keyboard event listener to include both navigation and visitor list
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Space') toggleSlideshow();
+    if (e.key.toLowerCase() === 'v') {
+        const existingList = document.querySelector('.visitor-list');
+        if (existingList) {
+            existingList.remove();
+        } else {
+            showVisitors();
+        }
+    }
+});
+
+function toggleSlideshow() {
+    if (isPlaying) {
+        clearInterval(slideshowInterval);
+    } else {
+        slideshowInterval = setInterval(nextImage, 12000);
+    }
+    isPlaying = !isPlaying;
 }
