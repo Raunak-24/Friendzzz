@@ -18,11 +18,14 @@ const firebaseConfig = {
     measurementId: "G-B9F9KQCRL8"
 };
 
-// Add this after Firebase initialization
-firebase.initializeApp(firebaseConfig).catch(error => {
+// Replace the Firebase initialization
+try {
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+} catch (error) {
     console.error('Firebase initialization error:', error);
     alert('Error connecting to visitor system. Gallery will still work.');
-});
+}
 
 // Update showVisitors function to handle empty data
 function showVisitors() {
