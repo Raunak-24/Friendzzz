@@ -1,6 +1,22 @@
 const accessKey = 'nnzYM_D-RwaiEJnWZlBQHhjX2qptAEZTl4u01DyosgI';
 const imageWrapper = document.querySelector('.image-wrapper');
 
+// Add Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAYyhwvbR0j05AzO5CKq_YvQ6Sa_2ZqPF0",
+    authDomain: "scenery-burst.firebaseapp.com",
+    databaseURL: "https://scenery-burst-default-rtdb.firebaseio.com",
+    projectId: "scenery-burst",
+    storageBucket: "scenery-burst.firebasestorage.app",
+    messagingSenderId: "676260138190",
+    appId: "1:676260138190:web:0f942d17e9d7d82be5549f",
+    measurementId: "G-B9F9KQCRL8"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 let images = [];
 let currentIndex = 0;
 
