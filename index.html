@@ -1,3 +1,5 @@
+<div class="nav-zone left"></div>
+<div class="nav-zone right"></div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,8 +7,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Scenery Gallery</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Add these before your script.js -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database.js"></script>
 </head>
 <body>
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-content">
+            <h1>Welcome to Scenic Journey</h1>
+            <input type="text" id="visitorName" placeholder="Enter your name">
+        </div>
+    </div>
     <div class="container">
         <div class="scenery-container">
             <div class="image-wrapper"></div>
