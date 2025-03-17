@@ -24,17 +24,33 @@ function handleVisitorEntry() {
     const nameInput = document.getElementById('visitorName');
     const submitButton = document.getElementById('submitName');
 
-    submitButton.addEventListener('click', () => {
+    if (!nameInput || !submitButton) {
+        console.error('Required elements not found');
+        return;
+    }
+
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            submitName();
+        }
+    });
+
+    submitButton.addEventListener('click', submitName);
+
+    function submitName() {
         const name = nameInput.value.trim();
         if (name) {
             db.ref('visitors').push({
                 name: name,
                 timestamp: new Date().toLocaleString()
+            }).then(() => {
+                welcomeOverlay.style.display = 'none';
+                loadGallery();
+            }).catch(error => {
+                console.error('Error saving visitor:', error);
             });
-            welcomeOverlay.style.display = 'none';
-            loadGallery();
         }
-    });
+    }
 }
 
 // Load gallery images
@@ -43,24 +59,31 @@ async function loadGallery() {
         const response = await fetch(
             `https://api.unsplash.com/photos/random?count=10&query=scenery&client_id=${accessKey}`
         );
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         images = data.map(image => ({
             url: image.urls.regular,
-            location: image.location.name || 'Beautiful Location',
-            description: image.description || 'Scenic View'
+            location: image.location?.name || 'Beautiful Location',
+            description: image.description || image.alt_description || 'Scenic View'
         }));
         
-        showImage(0);
-        setInterval(() => {
-            currentIndex = (currentIndex + 1) % images.length;
-            showImage(currentIndex);
-        }, 5000);
+        if (images.length > 0) {
+            showImage(0);
+            startSlideshow();
+        }
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error loading images:', error);
+        imageWrapper.innerHTML = `
+            <div style="color: white; text-align: center;">
+                <h2>Unable to load images</h2>
+                <p>${error.message}</p>
+            </div>
+        `;
     }
 }
 
-// Display image
 function showImage(index) {
     const image = images[index];
     imageWrapper.style.backgroundImage = `url(${image.url})`;
@@ -72,5 +95,12 @@ function showImage(index) {
     `;
 }
 
-// Initialize
+function startSlideshow() {
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % images.length;
+        showImage(currentIndex);
+    }, 5000);
+}
+
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', handleVisitorEntry);
