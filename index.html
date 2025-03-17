@@ -7,14 +7,17 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="welcome-overlay" id="welcomeOverlay">
-        <div class="welcome-content">
-            <h1>Welcome to Scenery Gallery</h1>
-            <input type="text" id="visitorName" placeholder="Enter your name">
-            <button id="submitName">Enter Gallery</button>
+    <div class="scenery-container">
+        <div class="welcome-overlay" id="welcomeOverlay">
+            <div class="welcome-content">
+                <h1>Welcome to Scenery Gallery</h1>
+                <input type="text" id="visitorName" placeholder="Enter your name">
+                <button id="submitName">Enter Gallery</button>
+            </div>
         </div>
+        <div class="image-wrapper"></div>
     </div>
-    <div class="image-wrapper"></div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
