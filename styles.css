@@ -143,4 +143,18 @@ body {
     color: rgba(255, 255, 255, 0.5);
 }
 
-/* Removed all button-related styles */
+/* Add these button styles to your existing CSS */
+button {
+    padding: 10px 25px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
