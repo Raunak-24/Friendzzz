@@ -2,15 +2,38 @@ const accessKey = 'nnzYM_D-RwaiEJnWZlBQHhjX2qptAEZTl4u01DyosgI';
 const numberOfImages = 50;
 let currentSlide = 0;
 let images = [];
+let viewerName = '';
 
+function showWelcomeScreen() {
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.id = 'welcome-screen';
+    welcomeDiv.innerHTML = `
+        <div class="welcome-content">
+            <h2>Welcome to the Slideshow</h2>
+            <input type="text" id="nameInput" placeholder="Enter your name" />
+            <button id="enterBtn">Enter</button>
+        </div>
+    `;
+    document.body.appendChild(welcomeDiv);
+
+    const enterBtn = document.getElementById('enterBtn');
+    enterBtn.addEventListener('click', () => {
+        viewerName = document.getElementById('nameInput').value.trim();
+        if (viewerName) {
+            document.body.removeChild(welcomeDiv);
+        }
+    });
+}
+
+// Modify fetchImages to show welcome screen first
 async function fetchImages() {
+    showWelcomeScreen();
     try {
         const response = await fetch(
             `https://api.unsplash.com/photos/random?count=${numberOfImages}&query=landmarks&client_id=${accessKey}`
         );
         images = await response.json();
         displayImages();
-        // Make sure the first slide is shown immediately
         showSlide(currentSlide);
     } catch (error) {
         console.error('Error fetching images:', error);
