@@ -125,6 +125,12 @@ function setupNavigation() {
             showSlide(currentSlide);
         }
     });
+
+    // Add automatic slideshow
+    setInterval(() => {
+        currentSlide = (currentSlide + 1) % images.length;
+        showSlide(currentSlide);
+    }, 4000); // 4000 milliseconds = 4 seconds
 }
 
 fetchImages();
