@@ -11,121 +11,38 @@ function showWelcomeScreen() {
         <div class="welcome-content">
             <h2>Welcome to the Slideshow</h2>
             <input type="text" id="nameInput" placeholder="Enter your name" />
-            <div class="error-message" id="nameError">Please enter your name</div>
-            <p>We'd like to show your location on the map to enhance your experience.</p>
             <button id="enterBtn">Enter</button>
-            <div class="error-message" id="locationError">Please allow location access</div>
         </div>
     `;
     document.body.appendChild(welcomeDiv);
 
+    // Add Firebase configuration at the top
+    const firebaseConfig = {
+        apiKey: "AIzaSyAYyhwvbR0j05AzO5CKq_YvQ6Sa_2ZqPF0",
+        authDomain: "scenery-burst.firebaseapp.com",
+        databaseURL: "https://scenery-burst-default-rtdb.firebaseio.com",
+        projectId: "scenery-burst",
+        storageBucket: "scenery-burst.firebasestorage.app",
+        messagingSenderId: "676260138190",
+        appId: "1:676260138190:web:0f942d17e9d7d82be5549f"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // Modify the enter button click handler in showWelcomeScreen
     const enterBtn = document.getElementById('enterBtn');
-    const nameInput = document.getElementById('nameInput');
-    const nameError = document.getElementById('nameError');
-    const locationError = document.getElementById('locationError');
-
-    enterBtn.addEventListener('click', async () => {
-        // Reset errors
-        nameError.style.display = 'none';
-        locationError.style.display = 'none';
-        nameInput.classList.remove('error');
-
-        // Validate name
-        viewerName = nameInput.value.trim();
-        if (!viewerName) {
-            nameError.style.display = 'block';
-            nameInput.classList.add('error');
-            return;
-        }
-
-        // Show loading state
-        enterBtn.classList.add('loading');
-        enterBtn.textContent = 'Loading...';
-        enterBtn.disabled = true;
-
-        try {
-            const position = await getPreciseLocation();
-            const { latitude, longitude } = position.coords;
-            
-            // Save data to Firebase
-            const visitorRef = database.ref('visitors').push();
-            await visitorRef.set({
+    enterBtn.addEventListener('click', () => {
+        viewerName = document.getElementById('nameInput').value.trim();
+        if (viewerName) {
+            // Save name to Firebase
+            database.ref('visitors').push({
                 name: viewerName,
-                location: { latitude, longitude },
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
-
-            // Remove welcome screen
             document.body.removeChild(welcomeDiv);
-        } catch (error) {
-            console.error('Error:', error);
-            // Show appropriate error
-            if (error.code === error.PERMISSION_DENIED) {
-                locationError.style.display = 'block';
-            }
-            // Reset button
-            enterBtn.classList.remove('loading');
-            enterBtn.textContent = 'Enter';
-            enterBtn.disabled = false;
         }
-    });
-}
-
-function showLeafletMap(latitude, longitude) {
-    const mapDiv = document.createElement('div');
-    mapDiv.id = 'map';
-    mapDiv.style.height = '400px';
-    mapDiv.style.margin = '20px 0';
-    document.body.appendChild(mapDiv);
-
-    // Initialize Leaflet map
-    const map = L.map('map').setView([latitude, longitude], 15);
-
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Add marker
-    L.marker([latitude, longitude]).addTo(map)
-        .bindPopup('Your Location')
-        .openPopup();
-}
-
-function getPreciseLocation() {
-    return new Promise((resolve, reject) => {
-        if (navigator.geolocation) {
-            const options = {
-                enableHighAccuracy: true,  // Request high accuracy
-                timeout: 5000,            // Maximum wait time
-                maximumAge: 0             // Don't use cached position
-            };
-            
-            navigator.geolocation.getCurrentPosition(resolve, reject, options);
-        } else {
-            reject(new Error('Geolocation is not supported by this browser.'));
-        }
-    });
-}
-
-function showMap(latitude, longitude) {
-    const mapDiv = document.createElement('div');
-    mapDiv.id = 'map';
-    mapDiv.style.height = '400px';
-    mapDiv.style.margin = '20px 0';
-    document.body.appendChild(mapDiv);
-
-    // Initialize Google Maps
-    const map = new google.maps.Map(mapDiv, {
-        center: { lat: latitude, lng: longitude },
-        zoom: 15
-    });
-
-    // Add marker
-    new google.maps.Marker({
-        position: { lat: latitude, lng: longitude },
-        map: map,
-        title: 'Your Location'
     });
 }
 
