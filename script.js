@@ -16,10 +16,31 @@ function showWelcomeScreen() {
     `;
     document.body.appendChild(welcomeDiv);
 
+    // Add Firebase configuration at the top
+    const firebaseConfig = {
+        apiKey: "AIzaSyAYyhwvbR0j05AzO5CKq_YvQ6Sa_2ZqPF0",
+        authDomain: "scenery-burst.firebaseapp.com",
+        databaseURL: "https://scenery-burst-default-rtdb.firebaseio.com",
+        projectId: "scenery-burst",
+        storageBucket: "scenery-burst.firebasestorage.app",
+        messagingSenderId: "676260138190",
+        appId: "1:676260138190:web:0f942d17e9d7d82be5549f"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    
+    // Modify the enter button click handler in showWelcomeScreen
     const enterBtn = document.getElementById('enterBtn');
     enterBtn.addEventListener('click', () => {
         viewerName = document.getElementById('nameInput').value.trim();
         if (viewerName) {
+            // Save name to Firebase
+            database.ref('visitors').push({
+                name: viewerName,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
             document.body.removeChild(welcomeDiv);
         }
     });
