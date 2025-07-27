@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <!-- Background -->
+  <rect width="300" height="300" fill="#f5f5f5"/>
+  
+  <!-- Two friends silhouette -->
+  <g transform="translate(50, 50)">
+    <!-- Friend 1 -->
+    <circle cx="70" cy="60" r="40" fill="#ff7043"/> <!-- Head -->
+    <path d="M50,100 C50,150 90,150 90,100" fill="#ff7043"/> <!-- Body -->
+    
+    <!-- Friend 2 -->
+    <circle cx="130" cy="60" r="40" fill="#42a5f5"/> <!-- Head -->
+    <path d="M110,100 C110,150 150,150 150,100" fill="#42a5f5"/> <!-- Body -->
+    
+    <!-- Arms connecting -->
+    <path d="M90,120 C100,140 100,140 110,120" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g>
+    <!-- Hearts -->
+    <path d="M30,30 C30,20 40,10 50,20 C60,10 70,20 70,30 C70,40 50,50 50,50 C50,50 30,40 30,30 Z" fill="#ef5350" opacity="0.6"/>
+    <path d="M230,40 C230,30 240,20 250,30 C260,20 270,30 270,40 C270,50 250,60 250,60 C250,60 230,50 230,40 Z" fill="#ef5350" opacity="0.6"/>
+    <path d="M40,230 C40,220 50,210 60,220 C70,210 80,220 80,230 C80,240 60,250 60,250 C60,250 40,240 40,230 Z" fill="#ef5350" opacity="0.6"/>
+    <path d="M220,220 C220,210 230,200 240,210 C250,200 260,210 260,220 C260,230 240,240 240,240 C240,240 220,230 220,220 Z" fill="#ef5350" opacity="0.6"/>
+    
+    <!-- Stars -->
+    <path d="M150,20 L155,30 L165,32 L158,40 L160,50 L150,45 L140,50 L142,40 L135,32 L145,30 Z" fill="#ffeb3b"/>
+    <path d="M260,150 L265,160 L275,162 L268,170 L270,180 L260,175 L250,180 L252,170 L245,162 L255,160 Z" fill="#ffeb3b"/>
+    <path d="M40,150 L45,160 L55,162 L48,170 L50,180 L40,175 L30,180 L32,170 L25,162 L35,160 Z" fill="#ffeb3b"/>
+    
+    <!-- Text -->
+    <text x="150" y="250" font-family="Arial" font-size="24" text-anchor="middle" fill="#3949ab" font-weight="bold">Friends Forever</text>
+  </g>
+</svg>
