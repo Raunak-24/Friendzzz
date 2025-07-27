@@ -1,0 +1,205 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-image: url('images/friendship-card-bg.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Fallback background color and gradient in case image doesn't load */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    z-index: -1;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    perspective: 1500px;
+    margin-bottom: 30px;
+}
+
+.card-front, .card-inside {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transition: transform 1s ease;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.card-front {
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+    transform-origin: left;
+    z-index: 2;
+}
+
+.card.open .card-front {
+    transform: rotateY(-180deg);
+}
+
+.card-front h1 {
+    color: #4a90e2;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-image {
+    width: 80%;
+    height: 200px;
+    background-image: url('images/friendship-illustration.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 10px 0;
+}
+
+.card-front p {
+    color: #666;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+.card-inside {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    transform: rotateY(180deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    transform-origin: left;
+}
+
+.card.open .card-inside {
+    transform: rotateY(0deg);
+    z-index: 3;
+}
+
+.card-message {
+    text-align: center;
+}
+
+.card-message h2 {
+    color: #4a90e2;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.card-message p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+.signature {
+    font-style: italic;
+    margin-top: 30px;
+    font-size: 1.2rem;
+    color: #4a90e2;
+}
+
+.back-btn {
+    background-color: #4a90e2;
+    color: white;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+}
+
+.back-btn:hover {
+    background-color: #357abd;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(74, 144, 226, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        height: 350px;
+    }
+    
+    .card-front h1 {
+        font-size: 1.6rem;
+    }
+    
+    .card-image {
+        height: 150px;
+    }
+    
+    .card-message h2 {
+        font-size: 1.5rem;
+    }
+    
+    .card-message p {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        height: 300px;
+    }
+    
+    .card-front, .card-inside {
+        padding: 20px;
+    }
+    
+    .card-front h1 {
+        font-size: 1.4rem;
+    }
+    
+    .card-image {
+        height: 120px;
+    }
+    
+    .card-message h2 {
+        font-size: 1.3rem;
+    }
+    
+    .card-message p {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+}
