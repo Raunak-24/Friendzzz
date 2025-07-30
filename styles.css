@@ -30,6 +30,31 @@ body::before {
     z-index: -1;
 }
 
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.greeting-card h1,
+.greeting-card p {
+    opacity: 0;
+    animation: fadeSlideIn 1s ease-out forwards;
+}
+
+.greeting-card h1 {
+    animation-delay: 0.2s;
+}
+
+.greeting-card p {
+    animation-delay: 0.8s;
+}
+
 .container {
     width: 100%;
     max-width: 800px;
